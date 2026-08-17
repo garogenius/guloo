@@ -1,4 +1,8 @@
-import { PartialType } from '@nestjs/mapped-types';
 import { CreateNewsDto } from './create-news.dto';
 
-export class UpdateNewsDto extends PartialType(CreateNewsDto) {}
+export class UpdateNewsDto implements Partial<CreateNewsDto> {
+  title?: string;
+  content?: string;
+  thumbnail?: string;
+  tags?: string[];
+}
