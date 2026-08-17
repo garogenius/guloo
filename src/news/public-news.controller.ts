@@ -1,6 +1,8 @@
 import { Controller, Get, Param, BadRequestException } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { NewsService } from './news.service';
 
+@ApiTags('Public News')
 @Controller(':tenant/news')
 export class PublicNewsController {
   constructor(private readonly newsService: NewsService) {}

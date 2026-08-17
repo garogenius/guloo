@@ -1,9 +1,11 @@
 import { Controller, Get, Param, BadRequestException } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { FaqsService } from './faqs.service';
 
+@ApiTags('Public FAQs')
 @Controller(':tenant/faqs')
 export class PublicFaqsController {
-  constructor(private readonly faqsService: FaqsService) {}
+  constructor(private readonly faqsService: FaqsService) { }
 
   private validateTenant(tenant: string): 'nattypay' | 'valarpay' {
     if (tenant !== 'nattypay' && tenant !== 'valarpay') {

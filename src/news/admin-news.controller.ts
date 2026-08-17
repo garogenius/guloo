@@ -10,10 +10,12 @@ import {
   HttpStatus,
   BadRequestException,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { NewsService } from './news.service';
 import { CreateNewsDto } from './dto/create-news.dto';
 import { UpdateNewsDto } from './dto/update-news.dto';
 
+@ApiTags('Admin News')
 @Controller('admin/:tenant/news')
 export class AdminNewsController {
   constructor(private readonly newsService: NewsService) {}

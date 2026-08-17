@@ -10,10 +10,12 @@ import {
   HttpStatus,
   BadRequestException,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { FaqsService } from './faqs.service';
 import { CreateFaqDto } from './dto/create-faq.dto';
 import { UpdateFaqDto } from './dto/update-faq.dto';
 
+@ApiTags('Admin FAQs')
 @Controller('admin/:tenant/faqs')
 export class AdminFaqsController {
   constructor(private readonly faqsService: FaqsService) {}
