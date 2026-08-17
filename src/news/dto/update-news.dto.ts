@@ -1,8 +1,4 @@
+import { PartialType } from '@nestjs/swagger';
 import { CreateNewsDto } from './create-news.dto';
 
-export class UpdateNewsDto implements Partial<CreateNewsDto> {
-  title?: string;
-  content?: string;
-  thumbnail?: string;
-  tags?: string[];
-}
+export class UpdateNewsDto extends PartialType(CreateNewsDto) {}
