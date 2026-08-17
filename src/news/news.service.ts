@@ -1,65 +1,45 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateNewsDto } from './dto/create-news.dto';
 import { UpdateNewsDto } from './dto/update-news.dto';
 import { News } from './news.entity';
 
 @Injectable()
 export class NewsService {
-  private nattyPayNews: News[] = [];
-  private valarPayNews: News[] = [];
+  constructor(
+    @InjectRepository(News)
+    private readonly newsRepository: Repository<News>,
+  ) {}
 
-  private getStore(tenant: 'nattypay' | 'valarpay'): News[] {
-    return tenant === 'nattypay' ? this.nattyPayNews : this.valarPayNews;
-  }
-
-  create(tenant: 'nattypay' | 'valarpay', createNewsDto: CreateNewsDto): News {
-    const store = this.getStore(tenant);
-    const news: News = {
-      id: Math.random().toString(36).substring(2, 15),
+  async create(tenant: 'nattypay' | 'valarpay', createNewsDto: CreateNewsDto): Promise<News> {
+    const news = this.newsRepository.create({
       ...createNewsDto,
       tenant,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    store.push(news);
-    return news;
+    });
+    return this.newsRepository.save(news);
   }
 
-  findAll(tenant: 'nattypay' | 'valarpay'): News[] {
-    return this.getStore(tenant);
+  findAll(tenant: 'nattypay' | 'valarpay'): Promise<News[]> {
+    return this.newsRepository.find({ where: { tenant }, order: { createdAt: 'DESC' } });
   }
 
-  findOne(tenant: 'nattypay' | 'valarpay', id: string): News {
-    const store = this.getStore(tenant);
-    const news = store.find((news) => news.id === id);
+  async findOne(tenant: 'nattypay' | 'valarpay', id: string): Promise<News> {
+    const news = await this.newsRepository.findOne({ where: { id, tenant } });
     if (!news) {
       throw new NotFoundException(`News with ID ${id} not found`);
     }
     return news;
   }
 
-  update(tenant: 'nattypay' | 'valarpay', id: string, updateNewsDto: UpdateNewsDto): News {
-    const store = this.getStore(tenant);
-    const newsIndex = store.findIndex((news) => news.id === id);
-    if (newsIndex === -1) {
-      throw new NotFoundException(`News with ID ${id} not found`);
-    }
-
-    const updatedNews = {
-      ...store[newsIndex],
-      ...updateNewsDto,
-      updatedAt: new Date(),
-    };
-    store[newsIndex] = updatedNews;
-    return updatedNews;
+  async update(tenant: 'nattypay' | 'valarpay', id: string, updateNewsDto: UpdateNewsDto): Promise<News> {
+    const news = await this.findOne(tenant, id);
+    Object.assign(news, updateNewsDto);
+    return this.newsRepository.save(news);
   }
 
-  remove(tenant: 'nattypay' | 'valarpay', id: string): void {
-    const store = this.getStore(tenant);
-    const newsIndex = store.findIndex((news) => news.id === id);
-    if (newsIndex === -1) {
-      throw new NotFoundException(`News with ID ${id} not found`);
-    }
-    store.splice(newsIndex, 1);
+  async remove(tenant: 'nattypay' | 'valarpay', id: string): Promise<void> {
+    const news = await this.findOne(tenant, id);
+    await this.newsRepository.remove(news);
   }
 }
